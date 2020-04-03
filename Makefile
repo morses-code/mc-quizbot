@@ -8,12 +8,12 @@ LDFLAGS = -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMM
 
 .PHONY: build
 build:
-	go build -tags 'production' $(LDFLAGS) -o $(BINPATH)/dp-sessions-api
+	go build -tags 'production' $(LDFLAGS) -o $(BINPATH)/mc-quizbot
 
 .PHONY: debug
 debug:
-	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-sessions-api
-	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-sessions-api
+	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/mc-quizbot
+	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/mc-quizbot
 
 .PHONY: test
 test:
