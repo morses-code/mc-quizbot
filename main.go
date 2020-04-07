@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -32,11 +31,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Question: ", result.Question)
-
 	http.HandleFunc("/", quiz.Handler)
 	http.HandleFunc("/quiz", quiz.GetQuizHandler)
 	http.HandleFunc("/question", quiz.GetQuestionHandler)
 	http.HandleFunc("/answer", quiz.GetAnswerHandler)
+	http.HandleFunc("/create", quiz.CreateQuizHandler)
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
