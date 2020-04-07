@@ -10,35 +10,32 @@ import (
 	"strconv"
 )
 
-type Quiz struct {
+type Question struct {
 	Number   int    `json:"number"`
 	Question string `json:"question"`
 	Answer   string `json:"answer"`
 }
 
-var quizData = []Quiz{
-	{
-		Number:   1,
-		Question: "What is the best day of the week?",
-		Answer:   "Friday",
-	},
-	{
-		Number:   2,
-		Question: "What is the worst day of the week?",
-		Answer:   "Monday",
-	},
-}
-
-func Handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
-}
-
 func GetQuizHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := json.Marshal(quizData)
+	session, err := mgo.Dial("mongodb://localhost:27017")
 	if err != nil {
-		log.Fatalf("JSON marshaling failed: %s", err)
+		panic(err)
 	}
-	fmt.Fprintf(w, "%s\n", data)
+	defer session.Close()
+
+	var result []Question
+	c := session.DB("quiz").C("questions")
+	err = c.Find(nil).All(&result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	data, err := json.Marshal(&result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fmt.Fprintf(w, string(data))
 }
 
 func GetQuestionHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,9 +60,9 @@ func GetAnswerHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", answer)
 }
 
-func CreateQuizHandler(w http.ResponseWriter, r *http.Request) {
-	var newQuiz Quiz
-	err := json.NewDecoder(r.Body).Decode(&newQuiz)
+func CreateQuestionHandler(w http.ResponseWriter, r *http.Request) {
+	var question Question
+	err := json.NewDecoder(r.Body).Decode(&question)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,14 +74,14 @@ func CreateQuizHandler(w http.ResponseWriter, r *http.Request) {
 	defer session.Close()
 
 	c := session.DB("quiz").C("questions")
-	err = c.Insert(&newQuiz)
+	err = c.Insert(&question)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	questionNumber := &newQuiz.Number
+	questionNumber := &question.Number
 
-	result := Quiz{}
+	result := Question{}
 	err = c.Find(bson.M{"number": questionNumber}).One(&result)
 	if err != nil {
 		log.Fatal(err)
@@ -109,52 +106,35 @@ func checkNumber(r *http.Request) (int, error) {
 }
 
 func getQuestion(number int) (string, error) {
-	result, s, err := getQuiz()
+	session, err := mgo.Dial("mongodb://localhost:27017")
 	if err != nil {
-		return s, err
+		panic(err)
+	}
+	defer session.Close()
+
+	result := Question{}
+	c := session.DB("quiz").C("questions")
+	err = c.Find(bson.M{"number": number}).One(&result)
+	if err != nil {
+		log.Panic(err)
 	}
 
-	var question string
-	for i := range result {
-		if result[i].Number == number {
-			question = result[i].Question
-		}
-	}
-
-	return question, nil
+	return result.Question, nil
 }
 
 func getAnswer(number int) (string, error) {
-	result, s, err := getQuiz()
+	session, err := mgo.Dial("mongodb://localhost:27017")
 	if err != nil {
-		return s, err
+		panic(err)
 	}
+	defer session.Close()
 
-	var answer string
-	for i := range result {
-		if result[i].Number == number {
-			answer = result[i].Answer
-		}
-	}
-
-	return answer, nil
-}
-
-func getQuiz() ([]Quiz, string, error) {
-	response, err := http.Get("http://localhost:8000/quiz")
+	result := Question{}
+	c := session.DB("quiz").C("questions")
+	err = c.Find(bson.M{"number": number}).One(&result)
 	if err != nil {
-		return nil, "", err
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		return nil, "", fmt.Errorf("unable to get json data: %s", response.Status)
+		log.Panic(err)
 	}
 
-	var result []Quiz
-	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
-		return nil, "", err
-	}
-
-	return result, "", nil
+	return result.Answer, nil
 }
