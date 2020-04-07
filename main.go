@@ -11,5 +11,6 @@ func main() {
 	http.HandleFunc("/quiz", quiz.GetQuizHandler)
 	http.HandleFunc("/question", quiz.GetQuestionHandler)
 	http.HandleFunc("/answer", quiz.GetAnswerHandler)
+	http.HandleFunc("/create", quiz.CreateQuizHandler)
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
