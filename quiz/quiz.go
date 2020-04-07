@@ -14,7 +14,7 @@ type Quiz struct {
 	Answer   string `json:"answer"`
 }
 
-var quizData = []Quiz{
+var QuizData = []Quiz{
 	{
 		Number:   1,
 		Question: "What is the best day of the week?",
@@ -32,7 +32,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetQuizHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := json.Marshal(quizData)
+	data, err := json.Marshal(QuizData)
 	if err != nil {
 		log.Fatalf("JSON marshaling failed: %s", err)
 	}

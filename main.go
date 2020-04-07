@@ -1,30 +1,38 @@
 package main
 
 import (
-	"context"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"fmt"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"morses-code/mc-quizbot/quiz"
 	"net/http"
 )
 
 func main() {
-	ctx := context.TODO()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	session, err := mgo.Dial("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
 
+	c := session.DB("quiz").C("questions")
+	err = c.Insert(&quiz.Quiz{
+		Number:   1,
+		Question: "What is the best day of the week?",
+		Answer:   "Friday",
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	collection := client.Database("quiz").Collection("questions")
+	result := quiz.Quiz{}
+	err = c.Find(bson.M{"number" : 1}).One(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	collection.InsertOne(ctx, bson.D{
-		{Key: "number", Value: "1"},
-		{Key: "question", Value: "What is the best day of the week?"},
-		{Key: "answer", Value: "Friday"},
-	})
+	fmt.Println("Question: ", result.Question)
 
 	http.HandleFunc("/", quiz.Handler)
 	http.HandleFunc("/quiz", quiz.GetQuizHandler)
