@@ -3,6 +3,8 @@ package quiz
 import (
 	"encoding/json"
 	"fmt"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
 	"strconv"
@@ -67,7 +69,29 @@ func CreateQuizHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Fprintf(w, "quiz data received: %q", newQuiz)
+
+	session, err := mgo.Dial("mongodb://localhost:27017")
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	c := session.DB("quiz").C("questions")
+	err = c.Insert(&newQuiz)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	questionNumber := &newQuiz.Number
+
+	result := Quiz{}
+	err = c.Find(bson.M{"number": questionNumber}).One(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "successfully created quiz question number: %d", result.Number)
 }
 
 func checkNumber(r *http.Request) (int, error) {
@@ -115,7 +139,6 @@ func getAnswer(number int) (string, error) {
 
 	return answer, nil
 }
-
 
 func getQuiz() ([]Quiz, string, error) {
 	response, err := http.Get("http://localhost:8000/quiz")
