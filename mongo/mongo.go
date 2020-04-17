@@ -56,3 +56,17 @@ func (m *Mongo) GetQuestion(number int) (string, error) {
 
 	return result.Question, nil
 }
+
+func (m *Mongo) GetAnswer(number int) (string, error) {
+	session := m.Session.Copy()
+	defer session.Close()
+
+	result := quiz.Question{}
+	c := session.DB("quiz").C("questions")
+	err := c.Find(bson.M{"number": number}).One(&result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return result.Answer, nil
+}

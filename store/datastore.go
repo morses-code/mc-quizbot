@@ -11,4 +11,5 @@ type DataStore struct {
 type Repository interface {
 	GetQuestions() ([]quiz.Question, error)
 	GetQuestion(int) (string, error)
+	GetAnswer(int) (string, error)
 }

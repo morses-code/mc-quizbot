@@ -44,3 +44,24 @@ func (api *QuizAPI) GetQuestionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 }
+
+func (api *QuizAPI) GetAnswerHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	number, err := strconv.Atoi(vars["number"])
+	if err != nil {
+		log.Panic(err)
+	}
+
+	result, err := api.dataStore.Backend.GetAnswer(number)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
