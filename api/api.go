@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"github.com/gorilla/mux"
 	"log"
 	"morses-code/mc-quizbot/store"
@@ -13,20 +12,21 @@ type QuizAPI struct {
 	Router *mux.Router
 }
 
-func CreateAndInitialiseQuizAPI(ctx context.Context, dataStore store.DataStore) {
+func CreateAndInitialiseQuizAPI(dataStore store.DataStore) {
 	router := mux.NewRouter()
-	api := NewQuizAPI(ctx, router, dataStore)
+	api := NewQuizAPI(router, dataStore)
 
 	log.Fatal(http.ListenAndServe(":8000", api.Router))
 }
 
-func NewQuizAPI(ctx context.Context, router *mux.Router, dataStore store.DataStore) *QuizAPI {
+func NewQuizAPI(router *mux.Router, dataStore store.DataStore) *QuizAPI {
 	api := &QuizAPI{
 		dataStore: dataStore,
 		Router:    router,
 	}
 
 	api.get("/quiz", api.GetQuizHandler)
+	api.get("/question/{number}", api.GetQuestionHandler)
 	return api
 }
 

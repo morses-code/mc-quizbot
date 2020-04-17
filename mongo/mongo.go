@@ -1,9 +1,9 @@
 package mongo
 
 import (
-	"context"
 	"errors"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"morses-code/mc-quizbot/quiz"
 )
@@ -29,7 +29,7 @@ func (m *Mongo) Init() (session *mgo.Session, err error) {
 	return session, nil
 }
 
-func (m *Mongo) GetQuestions(ctx context.Context) ([]quiz.Question, error) {
+func (m *Mongo) GetQuestions() ([]quiz.Question, error) {
 	session := m.Session.Copy()
 	defer session.Close()
 
@@ -41,4 +41,18 @@ func (m *Mongo) GetQuestions(ctx context.Context) ([]quiz.Question, error) {
 	}
 
 	return result, nil
+}
+
+func (m *Mongo) GetQuestion(number int) (string, error) {
+	session := m.Session.Copy()
+	defer session.Close()
+
+	result := quiz.Question{}
+	c := session.DB("quiz").C("questions")
+	err := c.Find(bson.M{"number": number}).One(&result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return result.Question, nil
 }

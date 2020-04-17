@@ -1,7 +1,6 @@
 package store
 
 import (
-	"context"
 	"morses-code/mc-quizbot/quiz"
 )
 
@@ -10,5 +9,6 @@ type DataStore struct {
 }
 
 type Repository interface {
-	GetQuestions(ctx context.Context) ([]quiz.Question, error)
+	GetQuestions() ([]quiz.Question, error)
+	GetQuestion(int) (string, error)
 }

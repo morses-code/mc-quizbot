@@ -7,41 +7,6 @@ type Question struct {
 }
 
 /*
-func GetQuizHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := mgo.Dial("mongodb://localhost:27017")
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-
-	var result []Question
-	c := session.DB("quiz").C("questions")
-	err = c.Find(nil).All(&result)
-	if err != nil {
-		log.Panic(err)
-	}
-
-
-	data, err := json.Marshal(&result)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	fmt.Fprintf(w, string(data))
-}*/
-
-/*
-func GetQuestionHandler(w http.ResponseWriter, r *http.Request) {
-	number, err := checkNumber(r)
-
-	question, err := getQuestion(number)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	fmt.Fprintf(w, "%s\n", question)
-}
-
 func GetAnswerHandler(w http.ResponseWriter, r *http.Request) {
 	number, err := checkNumber(r)
 
@@ -96,23 +61,6 @@ func checkNumber(r *http.Request) (int, error) {
 	}
 
 	return number, err
-}
-
-func getQuestion(number int) (string, error) {
-	session, err := mgo.Dial("mongodb://localhost:27017")
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-
-	result := Question{}
-	c := session.DB("quiz").C("questions")
-	err = c.Find(bson.M{"number": number}).One(&result)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return result.Question, nil
 }
 
 func getAnswer(number int) (string, error) {
