@@ -1,21 +1,12 @@
 package quiz
 
-import (
-	"encoding/json"
-	"fmt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"log"
-	"net/http"
-	"strconv"
-)
-
 type Question struct {
 	Number   int    `json:"number"`
 	Question string `json:"question"`
 	Answer   string `json:"answer"`
 }
 
+/*
 func GetQuizHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := mgo.Dial("mongodb://localhost:27017")
 	if err != nil {
@@ -30,14 +21,16 @@ func GetQuizHandler(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
+
 	data, err := json.Marshal(&result)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	fmt.Fprintf(w, string(data))
-}
+}*/
 
+/*
 func GetQuestionHandler(w http.ResponseWriter, r *http.Request) {
 	number, err := checkNumber(r)
 
@@ -138,3 +131,4 @@ func getAnswer(number int) (string, error) {
 
 	return result.Answer, nil
 }
+*/
