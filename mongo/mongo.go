@@ -70,3 +70,24 @@ func (m *Mongo) GetAnswer(number int) (string, error) {
 
 	return result.Answer, nil
 }
+
+func (m *Mongo) CreateQuestion(question quiz.Question) (quiz.Question, error) {
+	session := m.Session.Copy()
+	defer session.Close()
+
+	c := session.DB("quiz").C("questions")
+	err := c.Insert(&question)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	questionNumber := &question.Number
+
+	result := quiz.Question{}
+	err = c.Find(bson.M{"number": questionNumber}).One(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return question, nil
+}

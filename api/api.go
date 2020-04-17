@@ -28,9 +28,14 @@ func NewQuizAPI(router *mux.Router, dataStore store.DataStore) *QuizAPI {
 	api.get("/quiz", api.GetQuizHandler)
 	api.get("/question/{number}", api.GetQuestionHandler)
 	api.get("/answer/{number}", api.GetAnswerHandler)
+	api.post("/create", api.CreateQuestionHandler)
 	return api
 }
 
 func (api *QuizAPI) get(path string, handler http.HandlerFunc) {
 	api.Router.HandleFunc(path, handler).Methods(http.MethodGet)
+}
+
+func (api *QuizAPI) post(path string, handler http.HandlerFunc) {
+	api.Router.HandleFunc(path, handler).Methods(http.MethodPost)
 }

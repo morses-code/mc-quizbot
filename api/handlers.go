@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"log"
+	"morses-code/mc-quizbot/quiz"
 	"net/http"
 	"strconv"
 )
@@ -62,6 +63,28 @@ func (api *QuizAPI) GetAnswerHandler(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func (api *QuizAPI) CreateQuestionHandler(w http.ResponseWriter, r *http.Request) {
+	var question quiz.Question
+	err := json.NewDecoder(r.Body).Decode(&question)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := api.dataStore.Backend.CreateQuestion(question)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 }
