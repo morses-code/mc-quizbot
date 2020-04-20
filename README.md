@@ -1,2 +1,2 @@
 # mc-quizbot
-Application for creating and managing quiz's
+Application for creating and managing quizzes
